@@ -2,32 +2,30 @@ import streamlit as st
 import plotly.graph_objects as go
 
 def explain_score_for_advisor(result: dict):
-    """Explication enrichie avec transparence sur les ajustements"""
+    """Explication simplifiée pour Figma"""
     
     risk_score = result.get('risk_score', 0)
-    base_score = result.get('base_score', risk_score)
     risk_level = result.get('risk_level', 'INCONNU')
     
-    # Configuration couleurs
+    # Configuration couleurs (sans emojis)
     risk_config = {
-        "TRÈS FAIBLE": {"color": "#10b981", "icon": "🟢", "action": "✅ Approuver sans hésitation"},
-        "FAIBLE": {"color": "#3b82f6", "icon": "🔵", "action": "✅ Approuver le dossier"},
-        "MODÉRÉ": {"color": "#f59e0b", "icon": "🟡", "action": "⚠️ Approuver avec surveillance"},
-        "ÉLEVÉ": {"color": "#ef4444", "icon": "🟠", "action": "🔍 Analyse approfondie requise"},
-        "TRÈS ÉLEVÉ": {"color": "#dc2626", "icon": "🔴", "action": "❌ Risque très important"},
-        "CRITIQUE": {"color": "#7f1d1d", "icon": "⚫", "action": "❌ Refuser le dossier"}
+        "TRÈS FAIBLE": {"color": "#10b981", "action": "Approuver sans hésitation"},
+        "FAIBLE": {"color": "#3b82f6", "action": "Approuver le dossier"},
+        "MODÉRÉ": {"color": "#f59e0b", "action": "Approuver avec surveillance"},
+        "ÉLEVÉ": {"color": "#ef4444", "action": "Analyse approfondie requise"},
+        "TRÈS ÉLEVÉ": {"color": "#dc2626", "action": "Risque très important"},
+        "CRITIQUE": {"color": "#7f1d1d", "action": "Refuser le dossier"}
     }
     
     config = risk_config.get(risk_level, risk_config["MODÉRÉ"])
     
-    # Affichage principal
+    # Affichage principal simplifié
     col1, col2 = st.columns([1, 2])
     
     with col1:
-        # ✅ Affichage du score avec transparence
-        if base_score != risk_score:
-            st.markdown(f"""
-            <div style="background: {config['color']}; color: white; padding: 2rem; 
+        # Affichage du score
+        st.markdown(f"""
+        <div style="background: {config['color']}; color: white; padding: 2rem; 
                         border-radius: 15px; text-align: center;">
                 <h1>{config['icon']}</h1>
                 <h2>{risk_score}%</h2>

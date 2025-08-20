@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np  # ✅ Ajout nécessaire
 from components.api_client import api
 from components.client_form import render_client_form
-from components.risk_interpretation import explain_score_for_advisor, create_score_gauge, explain_financial_ratios
+from components.risk_interpretation_simple import explain_score_for_advisor, create_score_gauge, explain_financial_ratios
 from components.rgpd_compliance import show_rgpd_consent, show_privacy_notice, RGPDCompliantSession, validate_data_minimization
 
 # Configuration
@@ -64,8 +64,8 @@ def main():
     # En-tête principal
     st.markdown("""
     <div class="main-header">
-        <h1>🏦 Neo-Bank Credit Dashboard</h1>
-        <p>🎯 Évaluation instantanée de crédit pour conseillers clientèle</p>
+        <h1>Neo-Bank Credit Dashboard</h1>
+        <p>Évaluation instantanée de crédit pour conseillers clientèle</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -73,35 +73,35 @@ def main():
     api_ok, api_info = api.health_check()
     
     if not api_ok:
-        st.error("🔴 **Moteur de scoring non disponible** - Erreur de chargement du modèle")
-        st.info("💡 **Solutions possibles :**\n- Vérifiez que le fichier `model/credit_model_v2.pkl` existe\n- Redémarrez l'application\n- Contactez le support technique")
+        st.error("Moteur de scoring non disponible - Erreur de chargement du modèle")
+        st.info("Solutions possibles :\n- Vérifiez que le fichier model/credit_model_v2.pkl existe\n- Redémarrez l'application\n- Contactez le support technique")
         
         # Affichage des détails d'erreur
         if 'error' in api_info:
-            st.error(f"**Détail de l'erreur :** {api_info['error']}")
+            st.error(f"Détail de l'erreur : {api_info['error']}")
         
         st.stop()
     
     # Sidebar - État du moteur intégré
-    st.sidebar.success("✅ **Moteur de scoring actif**")
-    st.sidebar.info(f"🔧 **Version :** {api_info.get('version', 'N/A')}")
-    st.sidebar.info(f"🤖 **Modèle :** {'✅ Chargé' if api_info.get('model_loaded') else '❌ Non chargé'}")
-    st.sidebar.info(f"📊 **Features :** {api_info.get('feature_count', 0)}")
-    st.sidebar.info(f"🔒 **RGPD :** {'✅ Actif' if api_info.get('rgpd_enabled') else '❌ Inactif'}")
-    st.sidebar.success("🚀 **Hébergé sur Streamlit Cloud**")
+    st.sidebar.success("Moteur de scoring actif")
+    st.sidebar.info(f"Version : {api_info.get('version', 'N/A')}")
+    st.sidebar.info(f"Modèle : {'Chargé' if api_info.get('model_loaded') else 'Non chargé'}")
+    st.sidebar.info(f"Features : {api_info.get('feature_count', 0)}")
+    st.sidebar.info(f"RGPD : {'Actif' if api_info.get('rgpd_enabled') else 'Inactif'}")
+    st.sidebar.success("Hébergé sur Streamlit Cloud")
     
     # Navigation simplifiée
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### 🧭 Navigation")
+    st.sidebar.markdown("### Navigation")
     page = st.sidebar.radio(
         "Choisir une action :", 
-        ["📊 Évaluer un Client", "ℹ️ Guide d'utilisation"],
+        ["Évaluer un Client", "Guide d'utilisation"],
         index=0
     )
     
     # PAGE PRINCIPALE : Scoring Client
-    if page == "📊 Évaluer un Client":
-        st.header("📊 Évaluation de Demande de Crédit")
+    if page == "Évaluer un Client":
+        st.header("Évaluation de Demande de Crédit")
         
         # Consentement RGPD obligatoire
         if not show_rgpd_consent():
@@ -200,13 +200,13 @@ def main():
                 st.info("🔧 **Solutions :**\n- Vérifiez que l'API est démarrée\n- Contrôlez que tous les champs sont remplis\n- Contactez le support technique")
     
     # PAGE SECONDAIRE : Guide d'utilisation
-    elif page == "ℹ️ Guide d'utilisation":
-        st.header("ℹ️ Guide d'Utilisation du Dashboard")
+    elif page == "Guide d'utilisation":
+        st.header("Guide d'Utilisation du Dashboard")
         
-        st.markdown("### 🎯 Objectif")
+        st.markdown("### Objectif")
         st.info("Ce dashboard permet d'évaluer en temps réel le risque de défaut d'un client pour une demande de crédit.")
         
-        st.markdown("### 📊 Comment interpréter les scores")
+        st.markdown("### Comment interpréter les scores")
         
         col1, col2 = st.columns(2)
         

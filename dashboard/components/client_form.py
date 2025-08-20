@@ -5,12 +5,12 @@ def render_client_form():
     """Formulaire de saisie client - Structure de votre main.py"""
     
     with st.form("client_scoring_form"):
-        st.subheader("📋 Informations Client")
+        st.subheader("Informations Client")
         
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.markdown("#### 💰 Finances")
+            st.markdown("#### Finances")
             income = st.number_input("Revenus annuels (€)", 
                                    min_value=12000, value=50000, step=1000)
             credit_amount = st.number_input("Montant crédit (€)", 
@@ -19,7 +19,7 @@ def render_client_form():
                                     min_value=100, value=1500, step=50)
         
         with col2:
-            st.markdown("#### 👤 Personnel")
+            st.markdown("#### Personnel")
             age = st.number_input("Âge", min_value=18, max_value=80, value=35)
             employment_years = st.number_input("Années emploi", 
                                              min_value=0, max_value=50, value=5)
@@ -28,7 +28,7 @@ def render_client_form():
                                         min_value=1, max_value=10, value=2)
         
         with col3:
-            st.markdown("#### 📊 Complémentaires")
+            st.markdown("#### Complémentaires")
             children_ratio = st.slider("Ratio enfants", 0.0, 1.0, 0.5, 0.1)
             external_sources_mean = st.slider("Score externe", 0.0, 1.0, 0.6, 0.1)
             
@@ -40,7 +40,7 @@ def render_client_form():
             family_status = st.selectbox("Situation familiale", 
                 ["Célibataire", "Marié", "Divorcé", "Veuf"])
         
-        submitted = st.form_submit_button("🎯 Évaluer le Client", 
+        submitted = st.form_submit_button("Évaluer le Client", 
                                         use_container_width=True)
         
         if submitted:
