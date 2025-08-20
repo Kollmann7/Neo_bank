@@ -97,10 +97,8 @@ df = df.dropna()
 print(f"📊 Valeurs manquantes après: {df.isnull().sum().sum()}")
 print(f"📊 Échantillons restants: {len(df)}")
 
-# Limitation du dataset si trop grand (pour compatibilité)
-if len(df) > 10000:
-    df = df.sample(n=10000, random_state=42)
-    print(f"📊 Dataset réduit à: {len(df)} échantillons")
+# Utilisation de TOUTES les données (pas de limitation)
+print(f"📊 Utilisation de TOUTES les données: {len(df)} échantillons")
 
 # Définition des features finales
 feature_names = [col for col in df.columns if col != 'TARGET']
