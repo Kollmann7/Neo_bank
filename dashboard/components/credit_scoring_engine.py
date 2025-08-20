@@ -139,6 +139,10 @@ class CreditScoringEngine:
             logger.info(f"Nouvelle évaluation - Age: {client_data.get('age', 'N/A')}, "
                        f"Revenus: {client_data.get('income', 'N/A')//1000 if client_data.get('income') else 'N/A'}k")
             
+            # Calcul des ratios pour ajustement AVANT le modèle
+            credit_ratio = client_data['credit_amount'] / client_data['income']
+            annuity_ratio = client_data['annuity'] / client_data['income']
+            
             # Préparation des features
             features = self._prepare_features(client_data)
             
@@ -149,11 +153,26 @@ class CreditScoringEngine:
                 # Standardisation simple si pas de scaler
                 features = (features - np.mean(features)) / (np.std(features) + 1e-8)
             
-            # Prédiction
+            # Prédiction de base du modèle
             risk_proba = self.model.predict_proba(features)[0][1]
             risk_score = int(risk_proba * 100)
             
-            # Interprétation métier
+            # AJUSTEMENTS OBLIGATOIRES pour ratios extrêmes
+            if credit_ratio > 30:  # Plus de 30x les revenus
+                risk_score = max(risk_score, 95)  # Minimum 95%
+            elif credit_ratio > 20:  # Plus de 20x les revenus
+                risk_score = max(risk_score, 90)  # Minimum 90%
+            elif credit_ratio > 10:  # Plus de 10x les revenus
+                risk_score = max(risk_score, 85)  # Minimum 85%
+            elif credit_ratio > 6:   # Plus de 6x les revenus
+                risk_score = max(risk_score, 70)  # Minimum 70%
+                
+            if annuity_ratio > 0.8:  # Plus de 80% des revenus
+                risk_score = max(risk_score, 85)  # Minimum 85%
+            elif annuity_ratio > 0.5:  # Plus de 50% des revenus
+                risk_score = max(risk_score, 70)  # Minimum 70%
+            
+            # Interprétation métier avec le score ajusté
             interpretation = self._interpret_score(risk_score, client_data)
             
             # Construction de la réponse
@@ -267,12 +286,8 @@ def validate_client_data(client_data: Dict[str, Any]) -> Tuple[bool, str]:
     
     # Validation des ratios (règles métier)
     credit_ratio = client_data['credit_amount'] / client_data['income']
-    if credit_ratio > 10:  # Plus de 10x les revenus annuels
-        return False, "Montant de crédit disproportionné par rapport aux revenus"
-    
-    annuity_ratio = client_data['annuity'] / client_data['income']
-    if annuity_ratio > 0.8:  # Plus de 80% des revenus en remboursement
-        return False, "Mensualité trop élevée par rapport aux revenus"
+    # Plus de validation des ratios - tout est géré par le scoring avec ajustements
+    # Les cas "extrêmes" donnent juste un score de risque très élevé
     
     return True, "Données valides"
 
