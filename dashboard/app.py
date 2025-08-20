@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np  # ✅ Ajout nécessaire
 from components.api_client import api
 from components.client_form import render_client_form
-from components.risk_interpretation_simple import explain_score_for_advisor, create_score_gauge, explain_financial_ratios
+from components.risk_interpretation import explain_score_for_advisor, create_score_gauge, explain_financial_ratios
 from components.rgpd_compliance import show_rgpd_consent, show_privacy_notice, RGPDCompliantSession, validate_data_minimization
 
 # Configuration

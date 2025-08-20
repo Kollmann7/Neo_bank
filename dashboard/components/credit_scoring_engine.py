@@ -81,29 +81,35 @@ class CreditScoringEngine:
             self.is_loaded = False
     
     def _prepare_features(self, client_data: Dict[str, Any]) -> np.ndarray:
-        """Préparer les features pour le modèle"""
+        """Préparer les features pour le modèle - EXACTEMENT 13 features dans l'ordre du modèle"""
         try:
             # Calculs des ratios financiers
             credit_income_ratio = client_data['credit_amount'] / max(client_data['income'], 1)
             annuity_income_ratio = client_data['annuity'] / max(client_data['income'], 1)
             
-            # Construction du vecteur de features
+            # Construction du vecteur avec les 13 features EXACTES du modèle:
+            # ['AMT_INCOME_TOTAL', 'AMT_CREDIT', 'AMT_ANNUITY', 'CNT_FAM_MEMBERS', 'CNT_CHILDREN', 
+            #  'AGE_YEARS', 'EMPLOYMENT_YEARS', 'CODE_GENDER_ENCODED', 'NAME_EDUCATION_TYPE_ENCODED',
+            #  'NAME_INCOME_TYPE_ENCODED', 'NAME_FAMILY_STATUS_ENCODED', 'CREDIT_INCOME_RATIO', 'ANNUITY_INCOME_RATIO']
+            
             features = [
-                client_data['income'],                    # AMT_INCOME_TOTAL
-                client_data['credit_amount'],             # AMT_CREDIT
-                client_data['annuity'],                   # AMT_ANNUITY
-                client_data['age'],                       # AGE_YEARS
-                client_data['employment_years'],          # EMPLOYMENT_YEARS
-                credit_income_ratio,                      # CREDIT_INCOME_RATIO
-                annuity_income_ratio,                     # ANNUITY_INCOME_RATIO
-                client_data.get('family_size', 2),        # FAMILY_SIZE
-                client_data.get('children_ratio', 0),     # CHILDREN_RATIO
-                client_data.get('external_sources_mean', 0.5), # EXTERNAL_SOURCES_MEAN
-                client_data.get('education_encoded', 1),  # EDUCATION_ENCODED
-                client_data.get('income_type_encoded', 1), # INCOME_TYPE_ENCODED
-                client_data.get('family_status_encoded', 1), # FAMILY_STATUS_ENCODED
-                1 if client_data.get('gender', 'M') == 'M' else 0  # CODE_GENDER
+                client_data['income'],                              # AMT_INCOME_TOTAL
+                client_data['credit_amount'],                       # AMT_CREDIT
+                client_data['annuity'],                            # AMT_ANNUITY
+                client_data.get('family_size', 2),                 # CNT_FAM_MEMBERS
+                client_data.get('children_ratio', 0) * client_data.get('family_size', 2), # CNT_CHILDREN (approximation)
+                client_data['age'],                                # AGE_YEARS
+                client_data['employment_years'],                   # EMPLOYMENT_YEARS
+                1 if client_data.get('gender', 'M') == 'M' else 0, # CODE_GENDER_ENCODED
+                client_data.get('education_encoded', 1),           # NAME_EDUCATION_TYPE_ENCODED
+                client_data.get('income_type_encoded', 0),         # NAME_INCOME_TYPE_ENCODED
+                client_data.get('family_status_encoded', 0),       # NAME_FAMILY_STATUS_ENCODED
+                credit_income_ratio,                               # CREDIT_INCOME_RATIO
+                annuity_income_ratio                               # ANNUITY_INCOME_RATIO
             ]
+            
+            # Vérification: doit être exactement 13 features
+            assert len(features) == 13, f"Erreur: {len(features)} features au lieu de 13"
             
             return np.array(features).reshape(1, -1)
             
