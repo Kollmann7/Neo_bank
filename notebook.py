@@ -20,138 +20,93 @@ print("="*50)
 import sklearn
 print(f"📌 Version scikit-learn: {sklearn.__version__}")
 
-# 1. CRÉATION DE DONNÉES SYNTHÉTIQUES RÉALISTES
-print("\n📊 CRÉATION DU DATASET SYNTHÉTIQUE")
+# 1. CHARGEMENT DES VRAIES DONNÉES
+print("\n📊 CHARGEMENT DES VRAIES DONNÉES")
 print("="*40)
 
-np.random.seed(42)  # Pour la reproductibilité
-n_samples = 5000
+# Chargement du dataset d'entraînement
+print("� Chargement de application_train.csv...")
+try:
+    df_train = pd.read_csv('data/application_train.csv')
+    print(f"✅ Dataset chargé: {df_train.shape}")
+    print(f"📊 Taux de défaut réel: {df_train['TARGET'].mean():.1%}")
+except Exception as e:
+    print(f"❌ Erreur de chargement: {e}")
+    exit(1)
 
-print(f"📋 Génération de {n_samples} échantillons...")
+# Exploration rapide des colonnes
+print(f"\n📋 Colonnes disponibles: {len(df_train.columns)}")
+print("🔝 Premières colonnes:", list(df_train.columns[:10]))
 
-# Génération de données réalistes pour le crédit
-data_list = []
-
-for i in range(n_samples):
-    # Revenus annuels (distribution log-normale)
-    income = np.random.lognormal(mean=10.5, sigma=0.7)
-    income = max(15000, min(income, 300000))  # Entre 15k et 300k
-    
-    # Montant du crédit demandé (2x à 8x les revenus)
-    credit_multiplier = np.random.uniform(2, 8)
-    credit_amount = income * credit_multiplier
-    
-    # Annuités mensuelles (5% à 20% des revenus annuels / 12)
-    annuity_rate = np.random.uniform(0.05, 0.20)
-    annuity = (income * annuity_rate) / 12
-    
-    # Âge (distribution normale centrée sur 40 ans)
-    age = max(18, min(70, int(np.random.normal(40, 12))))
-    
-    # Années d'emploi (distribution exponentielle)
-    employment_years = max(0, min(40, int(np.random.exponential(7))))
-    
-    # Ratios financiers calculés
-    credit_income_ratio = credit_amount / income
-    annuity_income_ratio = annuity / income
-    
-    # Variables famille
-    family_size = max(1, min(6, int(np.random.poisson(2.3))))
-    children_ratio = max(0, min(1, np.random.beta(2, 5)))
-    
-    # Score externe moyen (sources externes de crédit)
-    external_sources_mean = np.random.beta(5, 5)
-    
-    # Variables catégorielles encodées
-    education_encoded = np.random.randint(0, 5)
-    income_type_encoded = np.random.randint(0, 4)
-    family_status_encoded = np.random.randint(0, 4)
-    code_gender = np.random.randint(0, 2)  # 0=F, 1=M
-    
-    # CALCUL DU RISQUE BASÉ SUR DES RÈGLES MÉTIER RÉALISTES
-    risk_score = 0
-    
-    # Facteur 1: Ratio crédit/revenus
-    if credit_income_ratio > 6:
-        risk_score += 0.4
-    elif credit_income_ratio > 4:
-        risk_score += 0.2
-    elif credit_income_ratio > 3:
-        risk_score += 0.1
-    
-    # Facteur 2: Taux d'endettement
-    if annuity_income_ratio > 0.35:
-        risk_score += 0.3
-    elif annuity_income_ratio > 0.25:
-        risk_score += 0.15
-    
-    # Facteur 3: Âge
-    if age < 25:
-        risk_score += 0.15
-    elif age > 65:
-        risk_score += 0.1
-    elif 30 <= age <= 50:
-        risk_score -= 0.05  # Âge optimal
-    
-    # Facteur 4: Stabilité professionnelle
-    if employment_years < 1:
-        risk_score += 0.25
-    elif employment_years < 3:
-        risk_score += 0.1
-    elif employment_years > 10:
-        risk_score -= 0.1  # Bonus stabilité
-    
-    # Facteur 5: Niveau de revenus
-    if income < 25000:
-        risk_score += 0.15
-    elif income > 75000:
-        risk_score -= 0.05
-    
-    # Facteur 6: Situation familiale
-    if family_size > 4:
-        risk_score += 0.05
-    
-    # Ajout de variabilité aléatoire
-    risk_score += np.random.normal(0, 0.1)
-    
-    # Décision binaire (TARGET: 1=défaut, 0=remboursement)
-    # Seuil ajusté pour avoir ~8% de défaut comme dans la réalité
-    target = 1 if risk_score > 0.6 else 0
-    
-    # Construction de la ligne de données
-    row = [
-        income,                 # AMT_INCOME_TOTAL
-        credit_amount,          # AMT_CREDIT  
-        annuity,                # AMT_ANNUITY
-        age,                    # AGE_YEARS
-        employment_years,       # EMPLOYMENT_YEARS
-        credit_income_ratio,    # CREDIT_INCOME_RATIO
-        annuity_income_ratio,   # ANNUITY_INCOME_RATIO
-        family_size,            # FAMILY_SIZE
-        children_ratio,         # CHILDREN_RATIO
-        external_sources_mean,  # EXTERNAL_SOURCES_MEAN
-        education_encoded,      # EDUCATION_ENCODED
-        income_type_encoded,    # INCOME_TYPE_ENCODED
-        family_status_encoded,  # FAMILY_STATUS_ENCODED
-        code_gender,            # CODE_GENDER
-        target                  # TARGET
-    ]
-    
-    data_list.append(row)
-
-# Conversion en DataFrame
-feature_names = [
+# Sélection des features importantes pour le modèle
+# On prend les colonnes principales qui existent probablement
+feature_candidates = [
     'AMT_INCOME_TOTAL', 'AMT_CREDIT', 'AMT_ANNUITY',
-    'AGE_YEARS', 'EMPLOYMENT_YEARS', 
-    'CREDIT_INCOME_RATIO', 'ANNUITY_INCOME_RATIO',
-    'FAMILY_SIZE', 'CHILDREN_RATIO',
-    'EXTERNAL_SOURCES_MEAN',
-    'EDUCATION_ENCODED', 'INCOME_TYPE_ENCODED', 
-    'FAMILY_STATUS_ENCODED', 'CODE_GENDER'
+    'DAYS_BIRTH', 'DAYS_EMPLOYED',
+    'CNT_FAM_MEMBERS', 'CNT_CHILDREN',
+    'CODE_GENDER', 'NAME_EDUCATION_TYPE', 'NAME_INCOME_TYPE', 'NAME_FAMILY_STATUS'
 ]
 
-columns = feature_names + ['TARGET']
-df = pd.DataFrame(data_list, columns=columns)
+# Vérifier quelles colonnes existent vraiment
+existing_features = []
+for col in feature_candidates:
+    if col in df_train.columns:
+        existing_features.append(col)
+        print(f"✅ {col}")
+    else:
+        print(f"❌ {col} - non trouvée")
+
+print(f"\n📊 Features retenues: {len(existing_features)}")
+
+# Préparation des données
+df = df_train[existing_features + ['TARGET']].copy()
+
+# Conversion des jours en années pour DAYS_BIRTH et DAYS_EMPLOYED
+if 'DAYS_BIRTH' in df.columns:
+    df['AGE_YEARS'] = (-df['DAYS_BIRTH'] / 365.25).astype(int)
+    df = df.drop('DAYS_BIRTH', axis=1)
+
+if 'DAYS_EMPLOYED' in df.columns:
+    # Gestion des valeurs aberrantes (365243 = pas d'emploi)
+    df['EMPLOYMENT_YEARS'] = -df['DAYS_EMPLOYED'] / 365.25
+    df.loc[df['EMPLOYMENT_YEARS'] > 50, 'EMPLOYMENT_YEARS'] = 0  # Pas d'emploi
+    df['EMPLOYMENT_YEARS'] = df['EMPLOYMENT_YEARS'].clip(0, 40)
+    df = df.drop('DAYS_EMPLOYED', axis=1)
+
+# Encodage des variables catégorielles
+categorical_cols = ['CODE_GENDER', 'NAME_EDUCATION_TYPE', 'NAME_INCOME_TYPE', 'NAME_FAMILY_STATUS']
+for col in categorical_cols:
+    if col in df.columns:
+        df[f'{col}_ENCODED'] = pd.Categorical(df[col]).codes
+        df = df.drop(col, axis=1)
+
+# Calcul de ratios financiers
+if 'AMT_INCOME_TOTAL' in df.columns and 'AMT_CREDIT' in df.columns:
+    df['CREDIT_INCOME_RATIO'] = df['AMT_CREDIT'] / df['AMT_INCOME_TOTAL'].replace(0, 1)
+
+if 'AMT_INCOME_TOTAL' in df.columns and 'AMT_ANNUITY' in df.columns:
+    df['ANNUITY_INCOME_RATIO'] = df['AMT_ANNUITY'] / df['AMT_INCOME_TOTAL'].replace(0, 1)
+
+# Nettoyage des données
+print("\n🧹 NETTOYAGE DES DONNÉES")
+print("="*25)
+
+# Suppression des valeurs manquantes
+print(f"📊 Valeurs manquantes avant: {df.isnull().sum().sum()}")
+df = df.dropna()
+print(f"📊 Valeurs manquantes après: {df.isnull().sum().sum()}")
+print(f"📊 Échantillons restants: {len(df)}")
+
+# Limitation du dataset si trop grand (pour compatibilité)
+if len(df) > 10000:
+    df = df.sample(n=10000, random_state=42)
+    print(f"📊 Dataset réduit à: {len(df)} échantillons")
+
+# Définition des features finales
+feature_names = [col for col in df.columns if col != 'TARGET']
+print(f"\n📋 Features finales: {len(feature_names)}")
+for i, feature in enumerate(feature_names, 1):
+    print(f"  {i:2d}. {feature}")
 
 print(f"✅ Dataset créé: {df.shape}")
 print(f"📊 Taux de défaut: {df['TARGET'].mean():.1%}")
@@ -281,31 +236,68 @@ print("✅ Encoders sauvegardés: model/encoders_v2.pkl")
 print("\n🧪 TEST DU MODÈLE")
 print("="*20)
 
-# Fonction de test simple
-def test_prediction(income, credit_amount, annuity, age, employment_years, gender='M'):
-    """Test simple du modèle"""
+# Fonction de test adaptée aux vraies features
+def test_prediction(income, credit_amount, annuity, age, employment_years, 
+                   family_members=2, children=0, gender='M', education='Higher education', 
+                   income_type='Working', family_status='Married'):
+    """Test du modèle avec les vraies features"""
     
     # Calcul des ratios
     credit_income_ratio = credit_amount / income
     annuity_income_ratio = annuity / income
     
-    # Création du vecteur de features
+    # Encodage simple des variables catégorielles (basé sur les valeurs typiques)
+    gender_encoded = 1 if gender == 'M' else 0
+    
+    # Encodages simplifiés (vous pouvez ajuster selon vos données)
+    education_mapping = {
+        'Secondary / secondary special': 0,
+        'Higher education': 1,
+        'Incomplete higher': 2,
+        'Lower secondary': 3,
+        'Academic degree': 4
+    }
+    education_encoded = education_mapping.get(education, 1)
+    
+    income_type_mapping = {
+        'Working': 0,
+        'Commercial associate': 1,
+        'Pensioner': 2,
+        'State servant': 3
+    }
+    income_type_encoded = income_type_mapping.get(income_type, 0)
+    
+    family_status_mapping = {
+        'Married': 0,
+        'Single / not married': 1,
+        'Civil marriage': 2,
+        'Separated': 3,
+        'Widow': 4
+    }
+    family_status_encoded = family_status_mapping.get(family_status, 0)
+    
+    # Création du vecteur avec exactement les 13 features du modèle
+    # Dans l'ordre exact: AMT_INCOME_TOTAL, AMT_CREDIT, AMT_ANNUITY, CNT_FAM_MEMBERS, CNT_CHILDREN,
+    # AGE_YEARS, EMPLOYMENT_YEARS, CODE_GENDER_ENCODED, NAME_EDUCATION_TYPE_ENCODED,
+    # NAME_INCOME_TYPE_ENCODED, NAME_FAMILY_STATUS_ENCODED, CREDIT_INCOME_RATIO, ANNUITY_INCOME_RATIO
+    
     features_test = np.array([[
         income,                    # AMT_INCOME_TOTAL
         credit_amount,             # AMT_CREDIT
         annuity,                   # AMT_ANNUITY
+        family_members,            # CNT_FAM_MEMBERS
+        children,                  # CNT_CHILDREN
         age,                       # AGE_YEARS
         employment_years,          # EMPLOYMENT_YEARS
+        gender_encoded,            # CODE_GENDER_ENCODED
+        education_encoded,         # NAME_EDUCATION_TYPE_ENCODED
+        income_type_encoded,       # NAME_INCOME_TYPE_ENCODED
+        family_status_encoded,     # NAME_FAMILY_STATUS_ENCODED
         credit_income_ratio,       # CREDIT_INCOME_RATIO
-        annuity_income_ratio,      # ANNUITY_INCOME_RATIO
-        2,                         # FAMILY_SIZE (défaut)
-        0.5,                       # CHILDREN_RATIO (défaut)
-        0.5,                       # EXTERNAL_SOURCES_MEAN (défaut)
-        1,                         # EDUCATION_ENCODED (défaut)
-        1,                         # INCOME_TYPE_ENCODED (défaut)
-        1,                         # FAMILY_STATUS_ENCODED (défaut)
-        1 if gender == 'M' else 0  # CODE_GENDER
+        annuity_income_ratio       # ANNUITY_INCOME_RATIO
     ]])
+    
+    print(f"🔍 Test avec {features_test.shape[1]} features (attendu: 13)")
     
     # Standardisation
     features_scaled = scaler.transform(features_test)
