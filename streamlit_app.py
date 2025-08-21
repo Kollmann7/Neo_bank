@@ -1,5 +1,5 @@
 """
-🏦 Neo-Bank Credit Dashboard
+🏦 Neo-Bank credit dashboard
 Point d'entrée principal pour Streamlit Cloud
 Déployé depuis GitHub
 """

@@ -7,7 +7,7 @@ from components.rgpd_compliance import show_rgpd_consent, show_privacy_notice, R
 
 # Configuration
 st.set_page_config(
-    page_title="Neo-Bank Credit Dashboard",
+    page_title="Neo-Bank credit dashboard",
     page_icon="🏦",
     layout="wide"
 )
@@ -64,7 +64,7 @@ def main():
     # En-tête principal
     st.markdown("""
     <div class="main-header">
-        <h1>Neo-Bank Credit Dashboard</h1>
+        <h1>Neo-Bank credit dashboard</h1>
         <p>Évaluation instantanée de crédit pour conseillers clientèle</p>
     </div>
     """, unsafe_allow_html=True)
