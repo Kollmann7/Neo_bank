@@ -5,7 +5,7 @@ def render_client_form():
     """Formulaire de saisie client - Structure de votre main.py"""
     
     with st.form("client_scoring_form"):
-        st.subheader("Informations Client")
+        st.subheader("Informations client")
         
         col1, col2, col3 = st.columns(3)
         

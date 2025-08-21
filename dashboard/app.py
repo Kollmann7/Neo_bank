@@ -95,13 +95,13 @@ def main():
     st.sidebar.markdown("### Navigation")
     page = st.sidebar.radio(
         "Choisir une action :", 
-        ["Évaluer un Client", "Guide d'utilisation"],
+        ["Évaluer un client", "Guide d'utilisation"],
         index=0
     )
     
     # PAGE PRINCIPALE : Scoring Client
-    if page == "Évaluer un Client":
-        st.header("Évaluation de Demande de Crédit")
+    if page == "Évaluer un client":
+        st.header("Évaluation de demande de crédit")
         
         # Consentement RGPD obligatoire
         if not show_rgpd_consent():
@@ -126,8 +126,8 @@ def main():
         if client_data:
             # Validation et minimisation RGPD
             minimized_data = validate_data_minimization(client_data)
-            
-            with st.spinner('🔄 **Évaluation en cours...** Analyse des 14 paramètres du modèle'):
+
+            with st.spinner('🔄 **Évaluation en cours...**'):
                 success, result = api.score_client(minimized_data)
             
             if success:
@@ -135,7 +135,7 @@ def main():
                 st.success("✅ **Évaluation terminée avec succès !**")
                 
                 st.markdown("---")
-                st.markdown("## 📈 Résultats de l'Évaluation")
+                st.markdown("## 📈 Résultats de l'évaluation")
                 
                 # ✅ Gestion sécurisée de l'affichage
                 try:
@@ -148,7 +148,7 @@ def main():
                     col1, col2 = st.columns(2)
                     
                     with col1:
-                        st.markdown("### 🎯 Score Visuel")
+                        st.markdown("### 🎯 Score visuel")
                         fig_gauge = create_score_gauge(result.get('risk_score', 0))
                         st.plotly_chart(fig_gauge, use_container_width=True)
                     
@@ -181,7 +181,7 @@ def main():
 
                 # Actions suggérées
                 st.markdown("---")
-                st.markdown("### 🎯 Actions Suivantes")
+                st.markdown("### 🎯 Actions suivantes")
                 
                 risk_score = result['risk_score']
                 
@@ -201,7 +201,7 @@ def main():
     
     # PAGE SECONDAIRE : Guide d'utilisation
     elif page == "Guide d'utilisation":
-        st.header("Guide d'Utilisation du Dashboard")
+        st.header("Guide d'utilisation du dashboard")
         
         st.markdown("### Objectif")
         st.info("Ce dashboard permet d'évaluer en temps réel le risque de défaut d'un client pour une demande de crédit.")
@@ -240,7 +240,7 @@ def main():
             - Risque de défaut extrême
             """)
         
-        st.markdown("### 💰 Ratios Financiers Importants")
+        st.markdown("### 💰 Ratios financiers importants")
         
         st.markdown("""
         **📊 Ratio Crédit/Revenus :**
@@ -257,18 +257,18 @@ def main():
         st.markdown("### 🔒 Conformité RGPD")
         st.success("✅ **Ce dashboard respecte le RGPD :**")
         st.markdown("""
-        - 🚫 **Aucun stockage** des données clients
-        - ⚡ **Traitement en temps réel** uniquement
-        - 🔐 **Moteur intégré sécurisé** sans API externe
-        - 📝 **Logs anonymisés** pour le monitoring
-        - 🎯 **Minimisation des données** automatique
-        - 🛡️ **Consentement utilisateur** obligatoire
+        -  **Aucun stockage** des données clients
+        -  **Traitement en temps réel** uniquement
+        -  **Moteur intégré sécurisé** sans API externe
+        -  **Logs anonymisés** pour le monitoring
+        -  **Minimisation des données** automatique
+        -  **Consentement utilisateur** obligatoire
         """)
         
         # Notice de confidentialité
         show_privacy_notice()
         
-        st.markdown("### 🆘 Support Technique")
+        st.markdown("### 🆘 Support technique")
         st.info("""
         **En cas de problème :**
         1. 🔄 Rechargez la page

@@ -8,7 +8,7 @@ from typing import Dict, Any, Tuple
 from .credit_scoring_engine import get_scoring_engine, validate_client_data
 
 class NeoBank_API:
-    """API Client intégrée - Plus besoin d'API externe"""
+    """API Client intégrée """
     
     def __init__(self):
         # Chargement du moteur de scoring intégré

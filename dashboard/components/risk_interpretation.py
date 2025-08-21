@@ -2,7 +2,7 @@ import streamlit as st
 import plotly.graph_objects as go
 
 def explain_score_for_advisor(result: dict):
-    """Explication simplifiée pour Figma"""
+    """Explication pour le conseiller"""
     
     risk_score = result.get('risk_score', 0)
     risk_level = result.get('risk_level', 'INCONNU')
@@ -48,8 +48,8 @@ def explain_score_for_advisor(result: dict):
             st.write(f"**Années d'emploi :** {details.get('employment_years', 'N/A')}")
 
 def create_score_gauge(score: int, risk_level: str = None) -> go.Figure:
-    """Gauge épurée pour Figma"""
-    
+    """Gauge de score de risque"""
+
     # Couleurs simplifiées
     if score < 30:
         color = "#10b981"  # Vert
@@ -64,7 +64,7 @@ def create_score_gauge(score: int, risk_level: str = None) -> go.Figure:
         mode="gauge+number",
         value=score,
         domain={'x': [0, 1], 'y': [0, 1]},
-        title={'text': "Score de Risque", 'font': {'size': 20}},
+        title={'text': "Score de risque", 'font': {'size': 20}},
         gauge={
             'axis': {'range': [None, 100], 'tickwidth': 1},
             'bar': {'color': color},
@@ -87,9 +87,9 @@ def create_score_gauge(score: int, risk_level: str = None) -> go.Figure:
 
 def explain_financial_ratios(details: dict):
     """Explication simplifiée des ratios basée sur les détails de l'API"""
-    
-    st.markdown("### Analyse des Ratios Financiers")
-    
+
+    st.markdown("### Analyse des ratios financiers")
+
     col1, col2 = st.columns(2)
     
     with col1:
@@ -123,7 +123,7 @@ def explain_financial_ratios(details: dict):
         # Affichage du taux d'endettement (déjà calculé)
         annuity_ratio_str = details.get('annuity_income_ratio', 'N/A')
         st.metric(
-            label="Taux d'Endettement", 
+            label="Taux d'endettement", 
             value=annuity_ratio_str,
             help="Pourcentage des revenus consacré au remboursement"
         )

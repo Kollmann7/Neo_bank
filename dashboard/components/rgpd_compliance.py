@@ -94,15 +94,15 @@ def show_privacy_notice():
     
     st.markdown("""
     ---
-    ### 🔒 Protection des Données Personnelles
+    ### 🔒 Protection des données personnelles
     
     **Cette application respecte le RGPD :**
     
-    - 🚫 **Aucun stockage** : Vos données ne sont jamais enregistrées
-    - ⚡ **Traitement instantané** : Analyse en temps réel uniquement
-    - 📊 **Logs anonymisés** : Seules des statistiques non-identifiantes
-    - 🔐 **Chiffrement** : Communications sécurisées
-    - 📞 **Support** : privacy@neo-bank.fr
+    -  **Aucun stockage** : Vos données ne sont jamais enregistrées
+    -  **Traitement instantané** : Analyse en temps réel uniquement
+    -  **Logs anonymisés** : Seules des statistiques non-identifiantes
+    -  **Chiffrement** : Communications sécurisées
+    -  **Support** : privacy@neo-bank.fr
     
     *Dernière mise à jour : Août 2025*
     """)
