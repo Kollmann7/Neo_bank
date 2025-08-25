@@ -1,4 +1,4 @@
-# 🏦 Neo-Bank Credit Dashboard
+# 🏦 Neo-Bank credit dashboard
 
 **Tableau de bord de scoring crédit en temps réel pour conseillers clientèle**
 
@@ -20,7 +20,7 @@
 - **Déploiement :** Streamlit Cloud + GitHub
 - **RGPD :** Consentement, minimisation, anonymisation
 
-### 🎯 Architecture Simplifiée
+### 🎯 Architecture simplifiée
 
 ```
 GitHub Repository
