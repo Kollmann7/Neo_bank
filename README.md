@@ -15,7 +15,7 @@
 ### 🔧 Technologies
 
 - **Frontend :** Streamlit
-- **Backend :** Moteur de scoring intégré (pas d'API externe)
+- **Backend :** Moteur de scoring intégré 
 - **ML :** Scikit-learn, Random Forest
 - **Déploiement :** Streamlit Cloud + GitHub
 - **RGPD :** Consentement, minimisation, anonymisation
